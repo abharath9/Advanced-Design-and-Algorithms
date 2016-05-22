@@ -1,0 +1,10 @@
+m10 w1
+m7 w2
+m6 w3
+m5 w4
+m9 w5
+m2 w6
+m3 w7
+m1 w8
+m8 w9
+m4 w10

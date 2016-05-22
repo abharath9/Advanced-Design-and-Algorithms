@@ -1,0 +1,176 @@
+/**
+ * Created by SONY on 08-10-2015.
+ */
+/**
+ *    Java Program to Implement Gale Shapley Algorithm
+ **/
+//package StableMarriage;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+
+/** Class GaleShapley **/
+public class StableMarriage
+{
+    private int numberOfSubjects, matchCount;
+    private ArrayList<String> men=new ArrayList<String>();
+    private ArrayList<String> women=new ArrayList<String>();
+    private ArrayList<ArrayList<String>> menPref=new ArrayList<ArrayList<String>>();
+    private ArrayList<ArrayList<String>> womenPref=new ArrayList<ArrayList<String>>();
+
+    private String[] womenStableMatch;
+    private boolean[] menPairedTo;
+
+    /** Constructor **/
+    public StableMarriage(ArrayList<String> m, ArrayList<String> w, ArrayList<ArrayList<String>> mp, ArrayList<ArrayList<String>> wp)
+    {
+        numberOfSubjects = mp.size();
+        matchCount = 0;
+        men = m;
+        women = w;
+        menPref = mp;
+        womenPref = wp;
+        menPairedTo = new boolean[numberOfSubjects];
+        womenStableMatch = new String[numberOfSubjects];
+        calcStableMatches();
+    }
+    /** function to calculate all matches **/
+    private void calcStableMatches()
+    {
+        int free;
+        while (matchCount < numberOfSubjects)
+        {
+            free=0;
+            while(free<numberOfSubjects)
+            {
+                if (!menPairedTo[free])
+                    break;
+                free++;
+            }
+
+            for (int i = 0; i < numberOfSubjects && !menPairedTo[free]; i++)
+            {
+                int index = womenIndexOf(menPref.get(free).get(i));
+                System.out.println("hi"+menPref.get(free).get(i));
+                if (womenStableMatch[index] == null)
+                {
+                    womenStableMatch[index] = men.get(free);
+                    menPairedTo[free] = true;
+                    matchCount++;
+                }
+                else
+                {
+                    String currentPartner = womenStableMatch[index];
+                    if (morePreference(currentPartner, men.get(free), index))
+                    {
+                        womenStableMatch[index] = men.get(free);
+                        menPairedTo[free] = true;
+                        menPairedTo[menIndexOf(currentPartner)] = false;
+                    }
+                }
+            }
+        }
+        printCouples();
+    }
+    /** function to check if women prefers new partner over old assigned partner **/
+    private boolean morePreference(String curPartner, String newPartner, int index)
+    {
+        for (int i = 0; i < numberOfSubjects; i++)
+        {
+            if (womenPref.get(index).get(i).equals(newPartner))
+                return true;
+            if (womenPref.get(index).get(i).equals(curPartner))
+                return false;
+        }
+        return false;
+    }
+    /** get men index **/
+    private int menIndexOf(String str)
+    {
+        for (int i = 0; i < numberOfSubjects; i++)
+            if (men.get(i).equals(str))
+                return i;
+        return -1;
+        
+    }
+    /** get women index **/
+    private int womenIndexOf(String str)
+    {
+        for (int i = 0; i < numberOfSubjects; i++)
+            if (women.get(i).equals(str))
+                return i;
+        return -1;
+    }
+    /** print couples **/
+    public void printCouples()
+    {
+        System.out.println("Couples are : ");
+        for (int i = 0; i < numberOfSubjects; i++)
+        {
+            System.out.println(womenStableMatch[i] +" "+ women.get(i));
+        }
+    }
+    /** main function **/
+    public static void main(String[] args) throws IOException {
+        System.out.println("Stable Marriage Algorithm\n");
+        /** list of men **/
+        //System.out.println("enter the no of hospitals");
+        BufferedReader in = new BufferedReader(new FileReader("C:\\Users\\SONY\\Documents\\Avusherla\\ADA\\sample.txt"));
+        String firstLine,input;
+        firstLine = in.readLine();
+        int i = Integer.parseInt(firstLine);
+        int subject=i;
+        int count=0;
+        //System.out.println(i);
+        //String[] mm=new String[i];
+        //String[] w=new String[i];
+
+        ArrayList<String> m=new ArrayList<String>();
+        ArrayList<ArrayList<String>> mp=new ArrayList<ArrayList<String>>();
+        ArrayList<String> w=new ArrayList<String>();
+        ArrayList<ArrayList<String>> wp=new ArrayList<ArrayList<String>>();
+        input = in.readLine();
+        //System.out.println(input);
+        BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\SONY\\Documents\\Avusherla\\ADA\\sample.txt"));
+        while ((input = br.readLine()) != null)
+        {
+            //System.out.println("file"+input);
+            count ++; // use a counter variable
+            if (count > 1 && count <= i+1)
+            {
+                //System.out.println(i);
+                //System.out.println(input.substring(0,input.indexOf(":")));
+                m.add(input.substring(0, input.indexOf(":")));
+                String mpTemp=input.substring(input.indexOf(":") + 1, input.length());
+                ArrayList<String> myList = new ArrayList<String>(Arrays.asList(mpTemp.split(",")));
+                mp.add(myList);
+
+            }
+            else if (count > i+1 && count <= i+i+1)
+            {
+                w.add(input.substring(0,input.indexOf(":")));
+                String mpTemp=input.substring(input.indexOf(":")+1,input.length());
+                ArrayList<String> myList = new ArrayList<String>(Arrays.asList(mpTemp.split(",")));
+                wp.add(myList);
+            }
+        }
+        System.out.println(m.get(0));
+        System.out.println(mp.get(0).get(0));
+        System.out.println(w.get(0));
+        System.out.println(wp.get(0).get(0));
+        //String line = FileUtils.readLines(file).get(lineNumber);
+       // String line32 = Files.readAllLines(Paths.get("file.txt").)
+          //      (Paths.get("file.txt")).get(1);
+        //System.out.println(line32);
+        //System.out.println(m);
+        //System.out.println(mp);
+        //System.out.println(w);
+        //System.out.println(wp);
+
+        StableMarriage gs = new StableMarriage(m, w, mp, wp);
+    }
+}
